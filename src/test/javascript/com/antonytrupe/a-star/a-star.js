@@ -172,8 +172,8 @@ QUnit.test("model validation", function(assert) {
 		'hScore' : function() {
 			// mock
 		},
-		'getStart' : function() {
-			return new Node({});
+		'keepSearching' : function() {
+			return true;
 		},
 		'getGoal' : function() {
 			// mock
@@ -182,9 +182,7 @@ QUnit.test("model validation", function(assert) {
 		'gScore' : function() {
 			// mock
 		},
-		'fScore' : function() {
-			// mock
-		},
+
 		'setState' : function() {
 			// mock
 		},
@@ -209,12 +207,13 @@ QUnit.test("single node model search", function(assert) {
 			// mock
 			return 0;
 		},
+		'keepSearching' : function() {
+			return true;
+		},
 		'gScore' : function() {
 			// mock
 		},
-		'fScore' : function() {
-			// mock
-		},
+
 		'setState' : function() {
 			// mock
 			return this;
@@ -248,10 +247,10 @@ QUnit.test("2 node/one step model search", function(assert) {
 			// mock
 			return 1;
 		};
-		this.gScore = function() {
-			// mock
+		this.keepSearching = function() {
+			return true;
 		};
-		this.fScore = function() {
+		this.gScore = function() {
 			// mock
 		};
 
@@ -290,7 +289,9 @@ QUnit.test("3 node/one step/dead-end model search", function(assert) {
 		this.hScore = function() {
 			// mock
 		};
-
+		this.keepSearching = function() {
+			return true;
+		};
 		this.getGoal = function() {
 			// mock
 			return 2;
@@ -298,9 +299,7 @@ QUnit.test("3 node/one step/dead-end model search", function(assert) {
 		this.gScore = function() {
 			// mock
 		};
-		this.fScore = function() {
-			// mock
-		};
+
 		this.setState = function(state) {
 			// mock
 			this._state = state;
@@ -349,10 +348,10 @@ QUnit.test("4 node/2 step/dead-end model search", function(assert) {
 		this.hScore = function() {
 			// mock
 		};
-		this.fScore = function() {
-			// mock
-		};
 
+		this.keepSearching = function() {
+			return true;
+		};
 		this.getGoal = function() {
 			// mock
 			return three;
@@ -429,6 +428,9 @@ QUnit.test("diamond:first path is shorter", function(assert) {
 			}
 			// mock
 		};
+		this.keepSearching = function() {
+			return true;
+		};
 		this.getGoal = function() {
 			// mock
 			return three;
@@ -437,9 +439,7 @@ QUnit.test("diamond:first path is shorter", function(assert) {
 		this.gScore = function() {
 			// mock
 		};
-		this.fScore = function(node) {
-			// mock
-		};
+
 		this.setState = function(_state) {
 			// mock
 			this._state = _state;
@@ -517,6 +517,9 @@ QUnit.test("diamond:second path is shorter", function(assert) {
 		this.getGoal = function() {
 			// mock
 			return three;
+		};
+		this.keepSearching = function() {
+			return true;
 		};
 		// actual cost from start to current node
 		this.gScore = function() {
@@ -597,6 +600,9 @@ QUnit.test("no path to goal", function(assert) {
 		this.getGoal = function() {
 			// mock
 			return four;
+		};
+		this.keepSearching = function() {
+			return true;
 		};
 		// actual cost from start to current node
 		this.gScore = function() {

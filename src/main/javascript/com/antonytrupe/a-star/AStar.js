@@ -12,9 +12,9 @@
  * @param {ai.getActions}
  *            ai.getActions
  * @param {Function}
- *            ai.gScore
+ *            ai.gScore - actual cost to this point
  * @param {Function}
- *            ai.hScore
+ *            ai.hScore - estimated cost from this point to goal
  * @param {Function}
  *            ai.getGoal
  * @param {Function}
@@ -25,9 +25,6 @@
  */
 function AStar(ai, options) {
 	"use strict";
-	var max_depth;
-	var max_process_time;
-	var optionFunction;
 	/**
 	 * @type PriorityQueue
 	 */
@@ -36,15 +33,13 @@ function AStar(ai, options) {
 	 * @type PriorityQueue
 	 */
 	var open_set = new PriorityQueue('getF', PriorityQueue.MIN_HEAP);
-	var g_score = {};
-	var came_from = [];
 
 	// make sure the model has the right methods for a_star to use
 	if (typeof ai === "undefined") {
 		throw "no ai provided";
 	}
 	var requiredAiMembers = [ 'getActions', 'gScore', 'hScore', 'getGoal',
-			'setState', 'getState' ];
+			'setState', 'getState', 'keepSearching' ];
 	var missingMembers = [];
 	requiredAiMembers.forEach(function(method) {
 		if (typeof ai[method] === "undefined") {
@@ -72,18 +67,10 @@ function AStar(ai, options) {
 	open_set.add(start);
 	// console.log('done initializing AStar');
 
-	this.step = function() {
-		// TODO
-		var q = open_set.peek();
-		return reconstruct_path(q);
-	};
-
 	this.search = function() {
-		var i = 0;
-
-		while (open_set.size() > 0 && i <= 100) {
-			i++;
-			var q = open_set.peek();
+ 
+		while (open_set.size() > 0 && ai.keepSearching()) {
+ 			var q = open_set.peek();
 
 			// console.log('current state');
 			// console.log(q.getState());
@@ -120,7 +107,6 @@ function AStar(ai, options) {
 		}
 		// if we got here, that means we failed to get to the goal
 		// so return the best path we did find
-		// TODO return the best path we did find
 		var c = closed_set.peek();
 		return reconstruct_path(c);
 
@@ -212,6 +198,9 @@ function Node(args) {
  */
 var PriorityQueue = function(criteria, heapType) {
 	this.length = 0; // The current length of heap.
+	/**
+	 * @memberOf PriorityQueue
+	 */
 	var queue = [];
 	var isMax = false;
 
