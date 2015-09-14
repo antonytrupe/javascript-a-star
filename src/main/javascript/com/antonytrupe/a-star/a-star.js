@@ -28,7 +28,10 @@ function AStar(ai, options) {
 	var max_depth;
 	var max_process_time;
 	var optionFunction;
-	var closed_set = {};
+	/**
+	 * @type PriorityQueue
+	 */
+	var closed_set = new PriorityQueue('getF', PriorityQueue.MIN_HEAP);
 	/**
 	 * @type PriorityQueue
 	 */
@@ -56,6 +59,9 @@ function AStar(ai, options) {
 	var start = new Node({
 		'state' : ai.getState()
 	});
+	start.setG(ai.gScore());
+	start.setH(ai.hScore());
+
 	var goal = new Node({
 		'state' : ai.getGoal()
 	});
@@ -65,6 +71,12 @@ function AStar(ai, options) {
 	// console.log(start.getState());
 	open_set.add(start);
 	// console.log('done initializing AStar');
+
+	this.step = function() {
+		// TODO
+		var q = open_set.peek();
+		return reconstruct_path(q);
+	};
 
 	this.search = function() {
 		var i = 0;
@@ -83,6 +95,7 @@ function AStar(ai, options) {
 			}
 
 			open_set.poll();
+			closed_set.add(q);
 			// console.log('update ai state');
 
 			ai.setState(q.getState());
@@ -105,6 +118,12 @@ function AStar(ai, options) {
 			});
 
 		}
+		// if we got here, that means we failed to get to the goal
+		// so return the best path we did find
+		// TODO return the best path we did find
+		var c = closed_set.peek();
+		return reconstruct_path(c);
+
 	};
 
 	function reconstruct_path(q) {

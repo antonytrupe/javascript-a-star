@@ -529,3 +529,92 @@ QUnit.test("diamond:second path is shorter", function(assert) {
 	assert.deepEqual(new AStar(new AI(zero)).search(), [ zero, two, three ],
 			"diamond:second path is shorter");
 });
+
+QUnit.test("no path to goal", function(assert) {
+
+	function State(_node) {
+		this.node = _node;
+	}
+	var zero = new State(0);
+	var one = new State(1);
+	var two = new State(2);
+	var three = new State(3);
+	var four = new State(4);
+
+	function AI(state) {
+		this._state = state;
+		this.getActions = function() {
+			// mock
+			switch (this._state.node) {
+			case 0:
+				return [ {
+					'function' : 'moveToNode',
+					'arguments' : 1,
+					'state' : one
+				}, {
+					'function' : 'moveToNode',
+					'arguments' : 2,
+					'state' : two
+				} ];
+
+				// both nodes 1 and 2 go to 3
+			case 1:
+			case 2:
+				return [ {
+					'function' : 'moveToNode',
+					'arguments' : 3,
+					'state' : three
+				} ];
+			default:
+				return [];
+			}
+		};
+		// h, heuristic, estimated cost from the node to the goal
+		this.hScore = function() {
+			// console.log(this._state.node);
+			switch (this._state.node) {
+			case 0:
+				return 10;
+			case 1:
+				return 5;
+			case 2:
+				return 4;
+			case 3:
+				return 1;
+			}
+			// mock
+		};
+		this.setState = function(_state) {
+			// console.log(_state);
+			// mock
+			this._state = _state;
+			// console.log(this._state);
+			return this;
+		};
+		this.getState = function() {
+			return this._state;
+		};
+		this.getGoal = function() {
+			// mock
+			return four;
+		};
+		// actual cost from start to current node
+		this.gScore = function() {
+			// mock
+			switch (this._state.node) {
+			case 0:
+				return 0;
+			case 1:
+				return 5;
+			case 2:
+				return 4;
+			case 3:
+				return 1;
+			}
+		};
+
+	}
+
+	assert.deepEqual(new AStar(new AI(zero)).search(), [ zero, two, three ],
+			"no path to goal");
+});
