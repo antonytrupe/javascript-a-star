@@ -1,5 +1,5 @@
 //model must contain a method named getActions
-//getActions must return an array of Nodes
+//getActions must return an array of objects. those objects must include a property named state, and optionally properties named action and arguments
 /**
  * @constructor
  * @param {AI}
@@ -25,21 +25,26 @@
  */
 function AStar(ai, options) {
 	"use strict";
+
+	// the nodes we've already listed, for checking to make sure we don't
+	// backtrack
+	var closedSet = new Set();
 	/**
-	 * @type PriorityQueue
+	 * @type PriorityQueue the nodes we've already visited, in order
 	 */
-	var closed_set = new PriorityQueue('getF', PriorityQueue.MIN_HEAP);
+	var closedPriorityQueue = new PriorityQueue('getH', PriorityQueue.MIN_HEAP);
+
 	/**
-	 * @type PriorityQueue
+	 * @type PriorityQueue the nodes we want to visit
 	 */
-	var open_set = new PriorityQueue('getF', PriorityQueue.MIN_HEAP);
+	var openPriorityQueue = new PriorityQueue('getF', PriorityQueue.MIN_HEAP);
 
 	// make sure the model has the right methods for a_star to use
 	if (typeof ai === "undefined") {
 		throw "no ai provided";
 	}
 	var requiredAiMembers = [ 'getActions', 'gScore', 'hScore', 'getGoal',
-			'setState', 'getState', 'keepSearching' ];
+			'setState', 'getState', 'atGoal' ];
 	var missingMembers = [];
 	requiredAiMembers.forEach(function(method) {
 		if (typeof ai[method] === "undefined") {
@@ -54,76 +59,87 @@ function AStar(ai, options) {
 	var start = new Node({
 		'state' : ai.getState()
 	});
-	start.setG(ai.gScore());
+	start.setG(0);
 	start.setH(ai.hScore());
 
 	var goal = new Node({
 		'state' : ai.getGoal()
 	});
-	// console.log('goal state');
-	// console.log(goal.getState());
-	// console.log('start state');
-	// console.log(start.getState());
-	open_set.add(start);
-	// console.log('done initializing AStar');
+	openPriorityQueue.add(start);
 
 	this.search = function() {
- 
-		while (open_set.size() > 0 && ai.keepSearching()) {
- 			var q = open_set.peek();
 
-			// console.log('current state');
-			// console.log(q.getState());
+		var loops = 0, MAX_LOOPS = 100;
+		while (openPriorityQueue.size() > 0 && loops <= MAX_LOOPS) {
+			loops++;
+			/**
+			 * @type {Node}
+			 */
+			var q = openPriorityQueue.peek();
+			ai.setState(q.getState());
 
 			// the stopping condition(s)
-			if (q.isEqual(goal)) {
-				// console.log('got to goal');
+			if (q.isEqual(goal) || ai.atGoal()) {
 				return reconstruct_path(q);
 			}
 
-			open_set.poll();
-			closed_set.add(q);
-			// console.log('update ai state');
+			// remove this node from the open list
+			openPriorityQueue.poll();
+			// add it to the closed lists
+			closedSet.add(JSON.stringify(q.getState()));
+			closedPriorityQueue.add(q);
 
-			ai.setState(q.getState());
-			// console.log(ai.getState());
-
-			// console.log('adding neighbors');
-
-			// closed_set.push(q);
 			// get actions returns an array of objects
 			ai.getActions().forEach(function(n) {
 				ai.setState(n.state);
 				var neighbor = new Node(n);
-				// console.log(neighbor._state);
 
 				neighbor.setPredecessor(q);
-				neighbor.setG(ai.gScore());
+				// get the total cost
+				neighbor.setG(ai.gScore(q.getG()));
 				neighbor.setH(ai.hScore());
 
-				open_set.add(neighbor);
+				// check the closed set to make sure we don't
+				// backtrack
+				if (!closedSet.has(JSON.stringify(neighbor.getState()))) {
+					openPriorityQueue.add(neighbor);
+				}
 			});
 
 		}
 		// if we got here, that means we failed to get to the goal
 		// so return the best path we did find
-		var c = closed_set.peek();
-		return reconstruct_path(c);
+		// we may have gotten here because openPriorityQueue is empty
+		// or we may have gotten here because we were forced to stop by some
+		// other constraint
+
+		console.log('did not get to goal');
+		var c = openPriorityQueue.peek();
+		if (typeof c === "undefined") {
+			console.log('using a node from the closedPriorityQueue');
+			c = closedPriorityQueue.peek();
+		}
+		var path = reconstruct_path(c);
+		return path;
 
 	};
 
+	/**
+	 * @param {Node}
+	 *            q
+	 * @return an array of objects that describe the path/actions to take
+	 */
 	function reconstruct_path(q) {
-		// console.log('reconstruct_path');
-		// console.log(q.getState());
-		var total_path = [ q.getState() ];
-		// console.log(total_path);
+		var total_path = [];
+		/**
+		 * @type {Node}
+		 */
 		var current = q;
-		while (current.getPredecessor()) {
-			total_path.push(current.getPredecessor().getState());
+		while (typeof current.getPredecessor() !== "undefined") {
+
+			total_path.push(current.getAction());
 			current = current.getPredecessor();
 		}
-
-		// console.log(total_path);
 		return total_path.reverse();
 	}
 
@@ -139,7 +155,14 @@ function Node(args) {
 	this._g;
 	//
 	this._state = args.state;
-	var predecessor = args.predecessor, _actionName = args.actionName, _args = args.args;
+	this.predecessor = args.predecessor;
+	// action has method and arguments, if any
+	// this is the action to get to this state from the predecessor state
+	this.action = args.action;
+
+	this.getAction = function() {
+		return this.action;
+	};
 
 	this.setState = function(__state) {
 		this._state = __state;
@@ -154,10 +177,18 @@ function Node(args) {
 		this._f = this._g + this._h;
 	};
 
+	this.getG = function() {
+		return this._g;
+	};
+
 	// h is the estimated cost from this node to the goal
 	this.setH = function(__h) {
 		this._h = __h;
 		this._f = this._g + this._h;
+	};
+
+	this.getH = function() {
+		return this._h;
 	};
 
 	// f is total cost from start to goal through this node
@@ -166,18 +197,15 @@ function Node(args) {
 	};
 
 	this.setPredecessor = function(__p) {
-		predecessor = __p;
+		this.predecessor = __p;
 	};
 	this.getPredecessor = function() {
-		return predecessor;
+		return this.predecessor;
 	};
 	this.isEqual = function(node) {
-		// console.log('Node.isEqual');
 		if (!(node instanceof Node)) {
 			return false;
 		}
-		// console.log(JSON.stringify(node.getState()));
-		// console.log(JSON.stringify(this.getState()));
 		return JSON.stringify(node.getState()) == JSON.stringify(this
 				.getState());
 	};
