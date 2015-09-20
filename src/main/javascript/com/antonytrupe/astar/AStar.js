@@ -78,6 +78,8 @@ function AStar(ai, options) {
 			var q = openPriorityQueue.peek();
 			ai.setState(q.getState());
 
+			//console.log(q.getState().position);
+
 			// the stopping condition(s)
 			if (q.isEqual(goal) || ai.atGoal()) {
 				return reconstruct_path(q);
@@ -96,7 +98,7 @@ function AStar(ai, options) {
 
 				neighbor.setPredecessor(q);
 				// get the total cost
-				neighbor.setG(ai.gScore(q.getG()));
+				neighbor.setG(ai.gScore(q.getG(), n.action));
 				neighbor.setH(ai.hScore());
 
 				// check the closed set to make sure we don't
@@ -113,10 +115,10 @@ function AStar(ai, options) {
 		// or we may have gotten here because we were forced to stop by some
 		// other constraint
 
-		console.log('did not get to goal');
+		// console.log('did not get to goal');
 		var c = openPriorityQueue.peek();
 		if (typeof c === "undefined") {
-			console.log('using a node from the closedPriorityQueue');
+			// console.log('using a node from the closedPriorityQueue');
 			c = closedPriorityQueue.peek();
 		}
 		var path = reconstruct_path(c);

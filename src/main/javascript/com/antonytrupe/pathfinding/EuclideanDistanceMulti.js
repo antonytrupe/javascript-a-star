@@ -3,13 +3,13 @@
  * @param {SquareGridMap}
  *            _state
  * @param {Object}
- *            goal
+ *            goals
  */
-function ManhattanDistance(_state, goal) {
+function EuclideanDistanceMulti(_state, goals) {
 	// private, use getter and setter methods
 	this._state = _state;
 
-	this.goal = goal;
+	this.goals = goals;
 
 	this._initial_state = _state;
 
@@ -28,9 +28,8 @@ function ManhattanDistance(_state, goal) {
 							&& this._state.position.y + y < this._state.map[this._state.position.x
 									+ x].length) {
 
-						// check to make sure its not the current position and
-						// not a diagonal move
-						if ((x == 0 && y == 0) || (x != 0 && y != 0)) {
+						// check to make sure its not the current position
+						if (x == 0 && y == 0) {
 							continue;
 						}
 						// valid location, but might be a wall
@@ -41,13 +40,15 @@ function ManhattanDistance(_state, goal) {
 
 							var direction = '';
 							if (x == -1) {
-								direction = 'up';
+								direction = 'N';
 							} else if (x == 1) {
-								direction = 'down';
-							} else if (y == -1) {
-								direction = 'left';
+								direction = 'S';
+							}
+
+							if (y == -1) {
+								direction += 'W';
 							} else if (y == 1) {
-								direction = 'right';
+								direction += 'E';
 							}
 
 							actions.push({
@@ -57,8 +58,7 @@ function ManhattanDistance(_state, goal) {
 								}),
 								'action' : {
 									'method' : direction
-								},
-								'cost' : 1
+								}
 							});
 						}
 					}
@@ -69,27 +69,43 @@ function ManhattanDistance(_state, goal) {
 	};
 
 	this.hScore = function() {
-		var dx = Math.abs(this.goal.x - this._state.position.x);
-		var dy = Math.abs(this.goal.y - this._state.position.y);
-		return dx + dy;
+		var minScore = null;
+
+		this.goals.forEach(function(goal) {
+			//
+			//console.log(this);
+			var dx = Math.abs(goal.x - this._state.position.x);
+			var dy = Math.abs(goal.y - this._state.position.y);
+			var score = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+			if (minScore == null || score < minScore) {
+				minScore = score;
+			}
+		}, this);
+
+		return minScore;
 	};
 
-	// TODO I think this needs the previous gscore
-	this.gScore = function(previousScore) {
-		return previousScore + 1;
-		// some models will want to only compare the initial state to the
-		// current state, and not take into account how many actions it has
-		// taken to get to the current state
-		// some models will care about both
+	// this needs the previous gscore and the current action
+	this.gScore = function(previousCost, action) {
+		// need to know if this is a diagonal move or not
+		var cost = 1;
+		if (action.method.length == 2) {
+			cost = 1.4;
+		}
+		return previousCost + cost;
 	};
 
 	this.getGoal = function() {
-		return this.goal;
+		return null;
 	};
 
 	this.atGoal = function() {
-		return JSON.stringify(this._state.position) == JSON
-				.stringify(this.goal);
+		this.goals.forEach(function(goal) {
+			if (JSON.stringify(this._state.position) == JSON.stringify(goal)) {
+				return true;
+			}
+		}, this);
+		return false;
 	};
 	this.setState = function(state) {
 		this._state = state;
