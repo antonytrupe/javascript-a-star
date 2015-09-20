@@ -67,6 +67,64 @@ function AStar(ai, options) {
 	});
 	openPriorityQueue.add(start);
 
+	this.getSolution = function() {
+		var loops = 0, MAX_LOOPS = 10000;
+		while (openPriorityQueue.size() > 0 && loops <= MAX_LOOPS) {
+			loops++;
+			/**
+			 * @type {Node}
+			 */
+			var q = openPriorityQueue.peek();
+			ai.setState(q.getState());
+
+			// console.log(q.getState().position);
+
+			// the stopping condition(s)
+			if (q.isEqual(goal) || ai.atGoal()) {
+				return q.getState();
+			}
+
+			// remove this node from the open list
+			openPriorityQueue.poll();
+			// add it to the closed lists
+			closedSet.add(JSON.stringify(q.getState()));
+			closedPriorityQueue.add(q);
+
+			// get actions returns an array of objects
+			ai.getActions().forEach(function(n) {
+				ai.setState(n.state);
+				var neighbor = new Node(n);
+
+				neighbor.setPredecessor(q);
+				// get the total cost
+				neighbor.setG(ai.gScore(q.getG(), n.action));
+				neighbor.setH(ai.hScore());
+
+				// check the closed set to make sure we don't
+				// backtrack
+				if (!closedSet.has(JSON.stringify(neighbor.getState()))) {
+					openPriorityQueue.add(neighbor);
+				}
+			});
+
+		}
+		// if we got here, that means we failed to get to the goal
+		// so return the best path we did find
+		// we may have gotten here because openPriorityQueue is empty
+		// or we may have gotten here because we were forced to stop by some
+		// other constraint
+
+		// console.log('did not get to goal');
+		var c = openPriorityQueue.peek();
+		if (typeof c === "undefined") {
+			// console.log('using a node from the closedPriorityQueue');
+			c = closedPriorityQueue.peek();
+		}
+
+		return c.getState();
+
+	};
+
 	this.search = function() {
 
 		var loops = 0, MAX_LOOPS = 100;
@@ -78,7 +136,7 @@ function AStar(ai, options) {
 			var q = openPriorityQueue.peek();
 			ai.setState(q.getState());
 
-			//console.log(q.getState().position);
+			// console.log(q.getState().position);
 
 			// the stopping condition(s)
 			if (q.isEqual(goal) || ai.atGoal()) {

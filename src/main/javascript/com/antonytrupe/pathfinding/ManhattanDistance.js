@@ -57,8 +57,7 @@ function ManhattanDistance(_state, goal) {
 								}),
 								'action' : {
 									'method' : direction
-								},
-								'cost' : 1
+								} 
 							});
 						}
 					}
