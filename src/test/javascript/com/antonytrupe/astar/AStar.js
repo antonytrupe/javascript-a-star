@@ -175,7 +175,9 @@ QUnit.test("model validation", function(assert) {
         'atGoal': function() {
             return false;
         },
-
+        'keepSearching': function() {
+            return false;
+        },
         'gScore': function() {
             // mock
         },
@@ -190,25 +192,41 @@ QUnit.test("model validation", function(assert) {
     }), "mock model");
 });
 
-QUnit.test("single node model search", function(assert) {
+QUnit.test("time constraint", function(assert) {
+    var foo = true;
     var mock_model = {
+        'start': Date.now(),
         'getActions': function() {
             // mock
-            return [{
-                'action': ''
-            }];
+            if (foo) {
+                foo = false;
+                return [{
+                    'state': Math.random(),
+                    'action': Math.random()
+                }, {
+                    'state': Math.random(),
+                    'action': Math.random()
+                }];
+            } else {
+                return [{
+                    'state': Math.random(),
+                    'action': Math.random()
+                }];
+            }
         },
         'hScore': function() {
             // mock
         },
-
         'atGoal': function() {
             return false;
+        },
+        'keepSearching': function() {
+            console.log(Date.now() - this.start);
+            return Date.now() - this.start <= 2000;
         },
         'gScore': function() {
             // mock
         },
-
         'setState': function() {
             // mock
             return this;
@@ -218,8 +236,7 @@ QUnit.test("single node model search", function(assert) {
             return 0;
         }
     };
-    assert.deepEqual(new AStar(mock_model).search(), [],
-            "single node model search");
+    assert.ok(new AStar(mock_model).search(), "time constraint");
 });
 
 QUnit.test("2 node/one step model search", function(assert) {
@@ -242,6 +259,9 @@ QUnit.test("2 node/one step model search", function(assert) {
 
         this.atGoal = function() {
             return this._state === 1;
+        };
+        this.keepSearching = function() {
+            return true;
         };
         this.gScore = function() {
             // mock
@@ -288,7 +308,9 @@ QUnit.test("3 node/one step/dead-end model search", function(assert) {
         this.atGoal = function() {
             return this._state === 2;
         };
-
+        this.keepSearching = function() {
+            return true;
+        };
         this.gScore = function() {
             // mock
         };
@@ -348,7 +370,9 @@ QUnit.test("4 node/2 step/dead-end model search", function(assert) {
         this.atGoal = function() {
             return this._state.node === three.node;
         };
-
+        this.keepSearching = function() {
+            return true;
+        };
         this.gScore = function() {
             // mock
         };
@@ -425,7 +449,9 @@ QUnit.test("diamond:first path is shorter", function(assert) {
         this.atGoal = function() {
             return this._state.node === three.node;
         };
-
+        this.keepSearching = function() {
+            return true;
+        };
         // actual cost from start to current node
         this.gScore = function() {
             // mock
@@ -502,7 +528,9 @@ QUnit.test("diamond:second path is shorter", function(assert) {
         this.getState = function() {
             return this._state;
         };
-
+        this.keepSearching = function() {
+            return true;
+        };
         this.atGoal = function() {
             return this._state.node === three.node;
         };
@@ -579,7 +607,9 @@ QUnit.test("no path to goal", function(assert) {
         this.getState = function() {
             return this._state;
         };
-
+        this.keepSearching = function() {
+            return true;
+        };
         this.atGoal = function() {
             return this._state.node === four.node;
         };
