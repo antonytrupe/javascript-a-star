@@ -158,6 +158,41 @@ QUnit.test("node equality", function(assert) {
 
 });
 
+QUnit.test("multi value sorting", function(assert) {
+    var pq = new PriorityQueue('compareTo', PriorityQueue.MIN_HEAP);
+    function o(_a, _b) {
+        this.a = _a;
+        this.b = _b;
+        this.compareTo = function(that) {
+            if (this.a < that.a) {
+                return -1;
+            } else if (this.a > that.a) {
+                return 1;
+            } else {
+                if (this.b < that.b) {
+                    return -1;
+                } else if (this.b > that.b) {
+                    return 1;
+                }
+            }
+            return 0;
+        };
+    }
+    var one = new o(1, 1);
+    var two = new o(1, 0);
+
+    var three = new o(0, 1);
+    pq.add(one);
+    assert.equal(pq.peek(), one, 'single node');
+    
+    pq.add(two);
+    assert.equal(pq.peek(), two, '2 nodes');
+    
+    pq.add(three);
+    assert.equal(pq.peek(), three, '3 nodes');
+
+});
+
 QUnit.test("model validation", function(assert) {
     assert.throws(function() {
         new AStar();
