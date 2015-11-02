@@ -1,5 +1,4 @@
 <web-app>
-
 	<servlet>
 		<servlet-name>Default</servlet-name>
 		<servlet-class>org.eclipse.jetty.servlet.DefaultServlet
@@ -10,5 +9,4 @@
 		</init-param>
 		<load-on-startup>0</load-on-startup>
 	</servlet>
-
 </web-app>

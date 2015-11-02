@@ -1,668 +1,657 @@
+//http://localhost:8080/webDefault/test/test.html
+
 QUnit.test("hello test", function(assert) {
-    assert.ok(1 == "1", "Passed!");
+	assert.ok(1 == "1", "Passed!");
 });
+
+function O(value) {
+	this.value = value;
+	this.compareTo = function(that) {
+		if (this.value < that.value) {
+			return -1;
+		} else if (this.value == that.value) {
+			return 0;
+		} else if (this.value >= that.value) {
+			return 1;
+		}
+	};
+}
 
 QUnit.test("example PriorityQueue.MIN_HEAP", function(assert) {
-    var p = new PriorityQueue("value", PriorityQueue.MIN_HEAP);
+	var p = new PriorityQueue();
 
-    var object1 = {};
-    var object2 = {};
-    var object3 = {};
-    var object4 = {};
+	var object1 = new O(5);
 
-    object1.value = 5;
-    object2.value = 10;
-    object3.value = 20;
-    object4.value = 15;
+	object2 = new O(10);
+	object3 = new O(20);
+	object4 = new O(15);
 
-    p.insert(object1);
-    p.insert(object2);
-    p.insert(object3);
-    p.insert(object4);
+	p.insert(object1);
+	assert.equal(p.peek().value, object1.value, 'peek 5, one element');
 
-    assert.equal(p.peek(), object1);
-    assert.equal(p.shiftHighestPriorityElement(), object1);
+	p.insert(object2);
+	assert.equal(p.peek().value, object1.value, 'peek 5, two elements');
 
-    assert.equal(p.peek(), object2);
-    assert.equal(p.shiftHighestPriorityElement(), object2);
+	p.insert(object3);
+	assert.equal(p.peek().value, object1.value, 'peek 5, three elements');
 
-    assert.equal(p.peek(), object4);
-    assert.equal(p.shiftHighestPriorityElement(), object4);
+	p.insert(object4);
+	assert.equal(p.peek().value, object1.value, 'peek 5, 4 elements');
 
-    assert.equal(p.peek(), object3);
-    assert.equal(p.shiftHighestPriorityElement(), object3);
+	assert.equal(p.peek().value, object1.value, 'peek 5');
+	assert.equal(p.shiftHighestPriorityElement().value, object1.value,
+			'shift 5');
 
-    assert.equal(p.length, 0);
+	assert.equal(p.peek().value, object2.value, 'peek 10');
+	assert.equal(p.shiftHighestPriorityElement().value, object2.value,
+			'shift 10');
+
+	assert.equal(p.peek().value, object4.value, 'peek 15');
+	assert.equal(p.shiftHighestPriorityElement().value, object4.value,
+			'shift 15');
+
+	assert.equal(p.peek().value, object3.value, 'peek 20');
+	assert.equal(p.shiftHighestPriorityElement().value, object3.value,
+			'shift 20');
+
+	assert.equal(p.length, 0, 'empty');
 
 });
 
-QUnit.test("example 1 PriorityQueue.MIN_HEAP", function(assert) {
-    var p = new PriorityQueue("value", PriorityQueue.MIN_HEAP);
+QUnit.test("example 1", function(assert) {
+	var p = new PriorityQueue();
 
-    var object1 = {};
-    var object2 = {};
+	var object1 = new O(10);
+	var object2 = new O(5)
 
-    object1.value = 10;
-    object2.value = 5;
+	p.insert(object1);
+	assert.equal(p.peek(), object1);
 
-    p.insert(object1);
-    assert.equal(p.peek(), object1);
+	p.insert(object2);
+	assert.equal(p.peek(), object2);
 
-    p.insert(object2);
-    assert.equal(p.peek(), object2);
-
-    assert.equal(p.shiftHighestPriorityElement(), object2);
+	assert.equal(p.shiftHighestPriorityElement(), object2);
 
 });
 
 QUnit.test("reverse PriorityQueue.MIN_HEAP", function(assert) {
-    var p = new PriorityQueue("value", PriorityQueue.MIN_HEAP);
+	var p = new PriorityQueue();
 
-    var object1 = {};
-    var object2 = {};
-    var object3 = {};
-    // var object4 = {};
+	var object1 = {};
+	var object2 = {};
+	var object3 = {};
+	// var object4 = {};
 
-    object1.value = 20;
-    object2.value = 15;
-    object3.value = 10;
-    // object4.value = 5;
+	var object1 = new O(20);
 
-    p.add(object1);
-    assert.equal(p.peek(), object1);
-    p.add(object2);
-    assert.equal(p.peek(), object2);
-    p.add(object3);
-    // p.insert(object4);
+	var object2 = new O(15);
 
-    // assert.equal(p.peek(), object4);
-    // assert.equal(p.shiftHighestPriorityElement(), object4);
+	var object3 = new O(10);
 
-    assert.equal(p.peek(), object3);
-    assert.equal(p.shiftHighestPriorityElement(), object3);
+	p.add(object1);
+	assert.equal(p.peek(), object1);
+	p.add(object2);
+	assert.equal(p.peek(), object2);
+	p.add(object3);
+	// p.insert(object4);
 
-    assert.equal(p.peek(), object2);
-    assert.equal(p.shiftHighestPriorityElement(), object2);
+	// assert.equal(p.peek(), object4);
+	// assert.equal(p.shiftHighestPriorityElement(), object4);
 
-    assert.equal(p.peek(), object1);
-    assert.equal(p.shiftHighestPriorityElement(), object1);
+	assert.equal(p.peek(), object3);
+	assert.equal(p.shiftHighestPriorityElement(), object3);
 
-    assert.equal(p.length, 0);
+	assert.equal(p.peek(), object2);
+	assert.equal(p.shiftHighestPriorityElement(), object2);
+
+	assert.equal(p.peek(), object1);
+	assert.equal(p.shiftHighestPriorityElement(), object1);
+
+	assert.equal(p.length, 0);
 
 });
 
 QUnit.test("PriorityQueue.MIN_HEAP", function(assert) {
 
-    var pq = new PriorityQueue('state', PriorityQueue.MIN_HEAP);
-    var zero = {};
-    zero.state = 10;
+	var pq = new PriorityQueue();
+	var zero = new O(10);
 
-    // console.log(zero);
+	// console.log(zero);
 
-    var one = {};
-    one.state = 20;
-    // console.log(one);
+	var one = new O(20);
+	// console.log(one);
 
-    var two = {};
-    two.state = 30;
+	var two = new O(30);
 
-    // console.log(two);
+	// console.log(two);
 
-    // console.log('adding first element');
-    pq.add(two);
-    // console.log(pq);
-    assert.equal(pq.peek().state, 30, "make sure 30 is on the top");
+	// console.log('adding first element');
+	pq.add(two);
+	// console.log(pq);
+	assert.equal(pq.peek().value, 30, "make sure 30 is on the top");
 
-    // console.log('adding second element');
-    pq.add(one);
-    // console.log(pq);
-    // console.log(pq.peek());
-    assert.equal(pq.peek().state, 20, "make sure 20 is on the top");
+	// console.log('adding second element');
+	pq.add(one);
+	// console.log(pq);
+	// console.log(pq.peek());
+	assert.equal(pq.peek().value, 20, "make sure 20 is on the top");
 
-    // console.log('adding third element');
-    pq.add(zero);
-    // console.log(pq);
+	// console.log('adding third element');
+	pq.add(zero);
+	// console.log(pq);
 
-    assert.equal(pq.peek().state, 10, "make sure 10 is on the top");
+	assert.equal(pq.peek().value, 10, "make sure 10 is on the top");
 });
 
 QUnit.test("deepEqual", function(assert) {
-    function State(_node) {
-        this.node = _node;
-    }
-    var one = new State(1);
-    var one1 = new State(1);
-    assert.deepEqual({
-        'node': 1
-    }, {
-        'node': 1
-    }, 'object type the same:object');
+	function State(_node) {
+		this.node = _node;
+	}
+	var one = new State(1);
+	var one1 = new State(1);
+	assert.deepEqual({
+		'node' : 1
+	}, {
+		'node' : 1
+	}, 'object type the same:object');
 
-    assert.deepEqual(one, one1, 'object type the same:State');
-    assert.notDeepEqual(one, {
-        'node': 1
-    }, 'object type checked');
+	assert.deepEqual(one, one1, 'object type the same:State');
+	assert.notDeepEqual(one, {
+		'node' : 1
+	}, 'object type checked');
 });
 
 QUnit.test("node equality", function(assert) {
-    assert.ok(new Node({
-        'state': 1
-    }).isEqual(new Node({
-        'state': 1
-    })), "1==1");
-    assert.ok(!new Node({
-        'state': 1
-    }).isEqual(new Node({
-        'state': 2
-    })), "1==2");
+	assert.ok(new Node({
+		'model' : 1
+	}).isEqual(new Node({
+		'model' : 1
+	})), "1==1");
+	assert.ok(!new Node({
+		'model' : 1
+	}).isEqual(new Node({
+		'model' : 2
+	})), "1==2");
 
 });
 
 QUnit.test("multi value sorting", function(assert) {
-    var pq = new PriorityQueue('compareTo', PriorityQueue.MIN_HEAP);
-    function o(_a, _b) {
-        this.a = _a;
-        this.b = _b;
-        this.compareTo = function(that) {
-            if (this.a < that.a) {
-                return -1;
-            } else if (this.a > that.a) {
-                return 1;
-            } else {
-                if (this.b < that.b) {
-                    return -1;
-                } else if (this.b > that.b) {
-                    return 1;
-                }
-            }
-            return 0;
-        };
-    }
-    var one = new o(1, 1);
-    var two = new o(1, 0);
+	var pq = new PriorityQueue('compareTo');
+	function o(_a, _b) {
+		this.a = _a;
+		this.b = _b;
+		this.compareTo = function(that) {
+			if (this.a < that.a) {
+				return -1;
+			} else if (this.a > that.a) {
+				return 1;
+			} else {
+				if (this.b < that.b) {
+					return -1;
+				} else if (this.b > that.b) {
+					return 1;
+				}
+			}
+			return 0;
+		};
+	}
+	var one = new o(1, 1);
+	var two = new o(1, 0);
 
-    var three = new o(0, 1);
-    pq.add(one);
-    assert.equal(pq.peek(), one, 'single node');
-    
-    pq.add(two);
-    assert.equal(pq.peek(), two, '2 nodes');
-    
-    pq.add(three);
-    assert.equal(pq.peek(), three, '3 nodes');
+	var three = new o(0, 1);
+	pq.add(one);
+	assert.equal(pq.peek(), one, 'single node');
+
+	pq.add(two);
+	assert.equal(pq.peek(), two, '2 nodes');
+
+	pq.add(three);
+	assert.equal(pq.peek(), three, '3 nodes');
 
 });
 
 QUnit.test("model validation", function(assert) {
-    assert.throws(function() {
-        new AStar();
-    }, "no model provided", "no model provided");
-    assert.throws(function() {
-        new AStar({});
-    }, /model missing attributes:/, "model missing attributes");
-    assert.ok(new AStar({
-        'getActions': function() {
-            // mock
-        },
-        'hScore': function() {
-            // mock
-        },
-        'atGoal': function() {
-            return false;
-        },
-        'keepSearching': function() {
-            return false;
-        },
-        'gScore': function() {
-            // mock
-        },
+	assert.throws(function() {
+		new AStar();
+	}, "no model provided", "no model provided");
+	assert.throws(function() {
+		new AStar({});
+	}, /model missing attributes:/, "model missing attributes");
+	assert.ok(new AStar({
+		'getActions' : function() {
+			// mock
+		},
 
-        'setState': function() {
-            // mock
-        },
-        'getState': function() {
-            // mock
-            return new Node({});
-        }
-    }), "mock model");
+		'atGoal' : function() {
+			return false;
+		},
+		'keepSearching' : function() {
+			return false;
+		},
+
+		'closedPriorityQueueComparator' : function() {
+			// mock
+		},
+
+		'openPriorityQueueComparator' : function() {
+			// mock
+		}
+
+	}), "mock model");
 });
 
 QUnit.test("time constraint", function(assert) {
-    var foo = true;
-    var mock_model = {
-        'start': Date.now(),
-        'getActions': function() {
-            // mock
-            if (foo) {
-                foo = false;
-                return [{
-                    'state': Math.random(),
-                    'action': Math.random()
-                }, {
-                    'state': Math.random(),
-                    'action': Math.random()
-                }];
-            } else {
-                return [{
-                    'state': Math.random(),
-                    'action': Math.random()
-                }];
-            }
-        },
-        'hScore': function() {
-            // mock
-        },
-        'atGoal': function() {
-            return false;
-        },
-        'keepSearching': function() {
-            console.log(Date.now() - this.start);
-            return Date.now() - this.start <= 2000;
-        },
-        'gScore': function() {
-            // mock
-        },
-        'setState': function() {
-            // mock
-            return this;
-        },
-        'getState': function() {
-            // mock
-            return 0;
-        }
-    };
-    assert.ok(new AStar(mock_model).search(), "time constraint");
+	var foo = true;
+	function RandomIntegerModel(start) {
+		this.state = Math.random();
+		this.start = start;
+		this.getActions = function() {
+			// mock
+			if (foo) {
+				foo = false;
+				return [ {
+					'model' : new RandomIntegerModel(this.start),
+					'action' : ''
+				}, {
+					'model' : new RandomIntegerModel(this.start),
+					'action' : ''
+				} ];
+			} else {
+				return [ {
+					'model' : new RandomIntegerModel(this.start),
+					'action' : ''
+				} ];
+			}
+		};
+
+		this.atGoal = function() {
+			return false;
+		};
+		this.keepSearching = function() {
+			// console.log(Date.now() - this.start);
+			return Date.now() - this.start <= 2000;
+		};
+
+		this.closedPriorityQueueComparator = function() {
+			// mock
+			return 1;
+		};
+		this.openPriorityQueueComparator = function() {
+			// mock
+			return 1;
+		}
+	}
+
+	assert.ok(new AStar(new RandomIntegerModel(Date.now())).getPath(),
+			"time constraint");
 });
 
 QUnit.test("2 node/one step model search", function(assert) {
-    function AI() {
-        this._state = 0;
-        this.getActions = function() {
-            // mock
-            if (this._state == 0) {
-                return [{
-                    'action': 1,
-                    'state': 1
-                }];
-            }
-            return [];
-        };
-        this.hScore = function() {
-            // mock
-            return 0;
-        };
 
-        this.atGoal = function() {
-            return this._state === 1;
-        };
-        this.keepSearching = function() {
-            return true;
-        };
-        this.gScore = function() {
-            // mock
-            return 0;
-        };
+	function IntegerStateModel(state) {
+		this._state = state;
+		this.getActions = function() {
+			// mock
+			if (this._state == 0) {
+				return [ {
+					'action' : 1,
+					'model' : new IntegerStateModel(1)
+				} ];
+			}
+			return [];
+		};
 
-        this.setState = function(state) {
-            // mock
-            this._state = state;
-            return this;
-        };
-        this.getState = function() {
-            // mock
-            return this._state;
-        };
+		this.atGoal = function() {
+			return this._state === 1;
+		};
+		this.keepSearching = function() {
+			return !this.atGoal();
+		};
 
-    }
+		this.closedPriorityQueueComparator = function(that) {
+			// mock
+			return 1;
+		};
+		this.openPriorityQueueComparator = function(that) {
+			// mock
+			return 1;
+		};
+	}
 
-    // console.log([ 0, 1 ]);
-    // console.log(new AStar(new AI()).search());
-    assert.deepEqual(new AStar(new AI()).search(), [1],
-            "2 node/one step model search");
+	assert.deepEqual(new AStar(new IntegerStateModel(0)).getPath(), [ 1 ],
+			"2 node/one step model search");
 });
 
 QUnit.test("3 node/one step/dead-end model search", function(assert) {
-    function AI() {
-        this._state = 0;
-        this.getActions = function() {
-            // mock
-            if (this._state == 0) {
-                return [{
-                    'action': 1,
-                    'state': 1
-                }, {
-                    'action': 2,
-                    'state': 2
-                }];
-            }
-            return [];
-        };
-        this.hScore = function() {
-            // mock
-        };
-        this.atGoal = function() {
-            return this._state === 2;
-        };
-        this.keepSearching = function() {
-            return true;
-        };
-        this.gScore = function() {
-            // mock
-        };
 
-        this.setState = function(state) {
-            // mock
-            this._state = state;
-            return this;
-        };
-        this.getState = function() {
-            // mock
-            return this._state;
-        };
-    }
-    assert.deepEqual(new AStar(new AI()).search(), [2],
-            "3 node/one step/dead-end model search");
+	function IntegerStateModel(state) {
+		this._state = state;
+		this.getActions = function() {
+			// mock
+			if (this._state == 0) {
+				return [ {
+					'action' : 1,
+					'model' : new IntegerStateModel(1)
+				}, {
+					'action' : 2,
+					'model' : new IntegerStateModel(2)
+				} ];
+			}
+			return [];
+		};
+
+		this.atGoal = function() {
+			return this._state === 2;
+		};
+		this.keepSearching = function() {
+			return true;
+		};
+
+		this.closedPriorityQueueComparator = function(that) {
+			// mock
+			return 1;
+		};
+		this.openPriorityQueueComparator = function(that) {
+			// mock
+			return 1;
+		};
+
+	}
+
+	assert.deepEqual(new AStar(new IntegerStateModel(0)).getPath(), [ 2 ],
+			"3 node/one step/dead-end model search");
 });
 
 QUnit.test("4 node/2 step/dead-end model search", function(assert) {
-    function State(_node) {
-        this.node = _node;
-    }
-    var zero = new State(0);
-    var one = new State(1);
-    var two = new State(2);
-    var three = new State(3);
+	function State(_node) {
+		this.node = _node;
+	}
+	var zero = new State(0);
+	var one = new State(1);
+	var two = new State(2);
+	var three = new State(3);
 
-    function AI(_state) {
-        // private, use getter and setter methods
-        this._state = _state;
+	function AI(_state) {
+		// private, use getter and setter methods
+		this._state = _state;
 
-        this.getActions = function() {
+		this.getActions = function() {
 
-            // mock
-            switch (this._state.node) {
-            case 0:
-                return [{
-                    'action': one,
-                    'state': one
-                }, {
-                    'action': two,
-                    'state': two
-                }];
-            case 2:
+			// mock
+			switch (this._state.node) {
+			case 0:
+				return [ {
+					'action' : one,
+					'model' : new AI(one)
+				}, {
+					'action' : two,
+					'model' : new AI(two)
+				} ];
+			case 2:
 
-                return [{
-                    'action': three,
-                    'state': three
-                }];
-            }
-            return [];
-        };
-        this.hScore = function() {
-            // mock
-        };
+				return [ {
+					'action' : three,
+					'model' : new AI(three)
+				} ];
+			}
+			return [];
+		};
 
-        this.atGoal = function() {
-            return this._state.node === three.node;
-        };
-        this.keepSearching = function() {
-            return true;
-        };
-        this.gScore = function() {
-            // mock
-        };
-        this.setState = function(state) {
-            // mock
-            this._state = state;
-            return this;
-        };
-        this.getState = function() {
-            return this._state;
-        };
-    }
-    // console.log([ { 'node' : 0 }, { 'node' : 2 }, { 'node' : 3 } ]);
+		this.atGoal = function() {
+			return this._state.node === three.node;
+		};
+		this.keepSearching = function() {
+			return true;
+		};
 
-    // console.log(new AStar(new AI(zero)));
-    // return;
-    assert.deepEqual(new AStar(new AI(zero)).search(), [two, three],
-            "4 node/2 step/dead-end model search");
+		this.closedPriorityQueueComparator = function(that) {
+			// mock
+			return 1;
+		};
+		this.openPriorityQueueComparator = function(that) {
+			// mock
+			return 1;
+		};
+	}
+	// console.log([ { 'node' : 0 }, { 'node' : 2 }, { 'node' : 3 } ]);
+
+	// console.log(new AStar(new AI(zero)));
+	// return;
+	assert.deepEqual(new AStar(new AI(zero)).getPath(), [ two, three ],
+			"4 node/2 step/dead-end model search");
 });
 
 QUnit.test("diamond:first path is shorter", function(assert) {
 
-    function State(_node) {
-        this.node = _node;
-    }
-    var zero = new State(0);
-    var one = new State(1);
-    var two = new State(2);
-    var three = new State(3);
+	function State(_node) {
+		this.node = _node;
+	}
+	var zero = new State(0);
+	var one = new State(1);
+	var two = new State(2);
+	var three = new State(3);
 
-    // a mock up of thediskgame.AI
-    // the AI is responsible for creating new world/game states
-    function AI(state) {
-        this._state = state;
-        // returns an array of objects
-        // each object contains 3 attributes: the 'action' to get to the new
-        // state, the 'args' for the function in the first argument,
-        // and the 'state' resulting from calling the 'action' with the 'args'
-        this.getActions = function() {
-            // mock
-            switch (this._state.node) {
-            case 0:
+	// a mock up of thediskgame.AI
+	// the AI is responsible for creating new world/game states
+	function AI(state) {
+		this._state = state;
+		// returns an array of objects
+		// each object contains 3 attributes: the 'action' to get to the new
+		// state, the 'args' for the function in the first argument,
+		// and the 'state' resulting from calling the 'action' with the 'args'
+		this.getActions = function() {
+			// mock
+			switch (this._state.node) {
+			case 0:
 
-                return [{
-                    'action': one,
-                    'state': one
-                }, {
-                    'action': two,
-                    'state': two
-                }];
-            case 1:
-            case 2:
-                return [{
-                    'action': three,
-                    'state': three
-                }];
+				return [ {
+					'action' : one,
+					'model' : new AI(one)
+				}, {
+					'action' : two,
+					'model' : new AI(two)
+				} ];
+			case 1:
+			case 2:
+				return [ {
+					'action' : three,
+					'model' : new AI(three)
+				} ];
 
-            default:
-                return [];
-            }
-        };
-        // h, heuristic, estimated cost from the node to the goal
-        this.hScore = function() {
-            switch (this._state.node) {
-            case 0:
-                return 10;
-            case 1:
-                return 4;
-            case 2:
-                return 5;
-            }
-            // mock
-        };
-        this.atGoal = function() {
-            return this._state.node === three.node;
-        };
-        this.keepSearching = function() {
-            return true;
-        };
-        // actual cost from start to current node
-        this.gScore = function() {
-            // mock
-        };
+			default:
+				return [];
+			}
+		};
 
-        this.setState = function(_state) {
-            // mock
-            this._state = _state;
-            return this;
-        };
-        this.getState = function() {
-            return this._state;
-        };
-    }
-    assert.deepEqual(new AStar(new AI(zero)).search(), [one, three],
-            "diamond:first path is shorter");
+		this.atGoal = function() {
+			return this._state.node === three.node;
+		};
+		this.keepSearching = function() {
+			return true;
+		};
+
+		this.closedPriorityQueueComparator = function(that) {
+			// mock
+			return 1;
+		};
+		this.openPriorityQueueComparator = function(that) {
+			// mock
+			return 1;
+		};
+
+	}
+	assert.deepEqual(new AStar(new AI(zero)).getPath(), [ one, three ],
+			"diamond:first path is shorter");
 });
 
 QUnit.test("diamond:second path is shorter", function(assert) {
 
-    function State(_node) {
-        this.node = _node;
-    }
-    var zero = new State(0);
-    var one = new State(1);
-    var two = new State(2);
-    var three = new State(3);
+	function State(_node) {
+		this.node = _node;
+	}
+	var zero = new State(0);
+	var one = new State(1);
+	var two = new State(2);
+	var three = new State(3);
 
-    function AI(state) {
-        this._state = state;
-        this.getActions = function() {
-            // mock
-            switch (this._state.node) {
-            case 0:
-                return [{
-                    'action': one,
-                    'state': one
-                }, {
-                    'action': two,
-                    'state': two
-                }];
+	function GraphModel(state) {
+		this._state = state;
+		this.getActions = function() {
+			// mock
+			switch (this._state.node) {
+			case 0:
+				return [ {
+					'action' : one,
+					'model' : new GraphModel(one)
+				}, {
+					'action' : two,
+					'model' : new GraphModel(two)
+				} ];
 
-                // both nodes 1 and 2 go to 3
-            case 1:
-            case 2:
-                return [{
-                    'action': three,
-                    'state': three
-                }];
-            default:
-                return [];
-            }
-        };
-        // h, heuristic, estimated cost from the node to the goal
-        this.hScore = function() {
-            // console.log(this._state.node);
-            switch (this._state.node) {
-            case 0:
-                return 10;
-            case 1:
-                return 5;
-            case 2:
-                return 4;
-            }
-            // mock
-        };
-        this.setState = function(_state) {
-            // console.log(_state);
-            // mock
-            this._state = _state;
-            // console.log(this._state);
-            return this;
-        };
-        this.getState = function() {
-            return this._state;
-        };
-        this.keepSearching = function() {
-            return true;
-        };
-        this.atGoal = function() {
-            return this._state.node === three.node;
-        };
-        // actual cost from start to current node
-        this.gScore = function() {
-            // mock
-            return 0;
-        };
+				// both nodes 1 and 2 go to 3
+			case 1:
+			case 2:
+				return [ {
+					'action' : three,
+					'model' : new GraphModel(three)
+				} ];
+			default:
+				return [];
+			}
+		};
 
-    }
+		// return 1 if this has a lower cost
+		this.closedPriorityQueueComparator = function(that) {
+			// mock
+			// console.log(this);
+			// console.log(this._state.node);
+			switch (this._state.node) {
+			case 0:
+				return 1;
+			case 1:
+				return 1;
+			case 2:
+				return -1;
+			}
+			return 1;
+		};
 
-    assert.deepEqual(new AStar(new AI(zero)).search(), [two, three],
-            "diamond:second path is shorter");
+		this.openPriorityQueueComparator = function(that) {
+			// mock
+			return this.closedPriorityQueueComparator(that);
+		};
+		this.keepSearching = function() {
+			return true;
+		};
+		this.atGoal = function() {
+			return this._state.node === three.node;
+		};
+
+	}
+
+	assert.deepEqual(new AStar(new GraphModel(zero)).getPath(), [ two, three ],
+			"diamond:second path is shorter");
 });
 
 QUnit.test("no path to goal", function(assert) {
 
-    function State(_node) {
-        this.node = _node;
-    }
-    var zero = new State(0);
-    var one = new State(1);
-    var two = new State(2);
-    var three = new State(3);
-    var four = new State(4);
+	function State(_node) {
+		this.node = _node;
+	}
+	var zero = new State(0);
+	var one = new State(1);
+	var two = new State(2);
+	var three = new State(3);
+	var four = new State(4);
 
-    function AI(state) {
-        this._state = state;
-        this.getActions = function() {
-            // mock
-            switch (this._state.node) {
-            case 0:
-                return [{
-                    'action': one,
-                    'state': one
-                }, {
-                    'action': two,
-                    'state': two
-                }];
+	function GraphModel(state) {
+		this._state = state;
+		this.getActions = function() {
+			// mock
+			switch (this._state.node) {
+			case 0:
+				return [ {
+					'action' : one,
+					'model' : new GraphModel(one)
+				}, {
+					'action' : two,
+					'model' : new GraphModel(two)
+				} ];
 
-                // both nodes 1 and 2 go to 3
-            case 1:
-            case 2:
-                return [{
-                    'action': three,
-                    'state': three
-                }];
-            default:
-                return [];
-            }
-        };
-        // h, heuristic, estimated cost from the node to the goal
-        this.hScore = function() {
-            // console.log(this._state.node);
-            switch (this._state.node) {
-            case 0:
-                return 10;
-            case 1:
-                return 5;
-            case 2:
-                return 4;
-            case 3:
-                return 1;
-            }
-            // mock
-        };
-        this.setState = function(_state) {
-            // console.log(_state);
-            // mock
-            this._state = _state;
-            // console.log(this._state);
-            return this;
-        };
-        this.getState = function() {
-            return this._state;
-        };
-        this.keepSearching = function() {
-            return true;
-        };
-        this.atGoal = function() {
-            return this._state.node === four.node;
-        };
-        // actual cost from start to current node
-        this.gScore = function() {
-            // mock
-            switch (this._state.node) {
-            case 0:
-                return 0;
-            case 1:
-                return 5;
-            case 2:
-                return 4;
-            case 3:
-                return 1;
-            }
-        };
-    }
-    assert.deepEqual(new AStar(new AI(zero)).search(), [two, three],
-            "no path to goal");
+				// both nodes 1 and 2 go to 3
+			case 1:
+			case 2:
+				return [ {
+					'action' : three,
+					'model' : new GraphModel(three)
+				} ];
+			default:
+				return [];
+			}
+		};
+		// h, heuristic, estimated cost from the node to the goal
+		this.hScore = function() {
+			// console.log(this._state.node);
+			switch (this._state.node) {
+			case 0:
+				return 10;
+			case 1:
+				return 5;
+			case 2:
+				return 4;
+			case 3:
+				return 1;
+			}
+			// mock
+		};
+
+		// actual cost from start to current node
+		this.gScore = function() {
+			// mock
+			switch (this._state.node) {
+			case 0:
+				return 0;
+			case 1:
+				return 5;
+			case 2:
+				return 4;
+			case 3:
+				return 1;
+			}
+		};
+
+		// in order of estimated cost from the node to the goal
+		this.closedPriorityQueueComparator = function(that) {
+			if (this.hScore() < that.hScore()) {
+				return -1;
+			} else if (this.hScore() > that.hScore()) {
+				return 1;
+			} else {
+				return 0;
+			}
+		};
+
+		// in order of actual cost from start to current node plus estimated
+		// cost to goal
+		this.openPriorityQueueComparator = function(that) {
+			if (this.hScore() + this.gScore() < that.hScore() + that.gScore()) {
+				return -1;
+			} else if (this.hScore() + this.gScore() > that.hScore()
+					+ that.gScore()) {
+				return 1;
+			} else {
+				return 0;
+			}
+		};
+
+		this.keepSearching = function() {
+			return true;
+		};
+		this.atGoal = function() {
+			return this._state.node === four.node;
+		};
+
+	}
+	assert.deepEqual(new AStar(new GraphModel(zero)).getPath(), [ two, three ],
+			"no path to goal");
 });

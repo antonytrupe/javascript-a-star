@@ -24,7 +24,7 @@ QUnit.test("4x4: 2 goals", function(assert) {
 
 	var aStar = new AStar(EuclideanDistanceAI);
 	// return;
-	assert.deepEqual(aStar.search(), [
+	assert.deepEqual(aStar.getPath(), [
 	//
 	{
 		'method' : 'SE'

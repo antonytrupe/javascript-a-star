@@ -14,13 +14,13 @@ QUnit.test("3x3:U shape, top left to top right", function(assert) {
 	var map = new SquareGridMap([ [ " ", "|", " " ], [ " ", "|", " " ],
 			[ " ", " ", " " ], ], start);
 
-	var manhattanDistanceAI = new ManhattanDistance(map, goal);
-	assert.equal(manhattanDistanceAI._state.position, start, "set start");
-	assert.equal(manhattanDistanceAI.goal, goal, "set goal");
+	var manhattanDistanceModel = new ManhattanDistanceModel(map, goal, 0);
+	assert.equal(manhattanDistanceModel._state.position, start, "set start");
+	assert.equal(manhattanDistanceModel.goal, goal, "set goal");
 
-	var aStar = new AStar(manhattanDistanceAI);
+	var aStar = new AStar(manhattanDistanceModel);
 	// return;
-	assert.deepEqual(aStar.search(), [
+	assert.deepEqual(aStar.getPath(), [
 
 	// down
 	{
@@ -60,13 +60,13 @@ QUnit.test("3x3:U shape, top right to top left", function(assert) {
 	var map = new SquareGridMap([ [ " ", "|", " " ], [ " ", "|", " " ],
 			[ " ", " ", " " ], ], start);
 
-	var manhattanDistanceAI = new ManhattanDistance(map, goal);
+	var manhattanDistanceAI = new ManhattanDistanceModel(map, goal);
 	assert.equal(manhattanDistanceAI._state.position, start, "set start");
 	assert.equal(manhattanDistanceAI.goal, goal, "set goal");
 
 	var aStar = new AStar(manhattanDistanceAI);
 	// return;
-	assert.deepEqual(aStar.search(), [
+	assert.deepEqual(aStar.getPath(), [
 
 	// down
 	{
@@ -106,13 +106,13 @@ QUnit.test("3x3:n shape, bottom right to bottom left", function(assert) {
 	var map = new SquareGridMap([ [ " ", " ", " " ], [ " ", "|", " " ],
 			[ " ", "|", " " ], ], start);
 
-	var manhattanDistanceAI = new ManhattanDistance(map, goal);
+	var manhattanDistanceAI = new ManhattanDistanceModel(map, goal);
 	assert.equal(manhattanDistanceAI._state.position, start, "set start");
 	assert.equal(manhattanDistanceAI.goal, goal, "set goal");
 
 	var aStar = new AStar(manhattanDistanceAI);
 	// return;
-	assert.deepEqual(aStar.search(), [
+	assert.deepEqual(aStar.getPath(), [
 
 	// down
 	{
@@ -140,6 +140,7 @@ QUnit.test("3x3:n shape, bottom right to bottom left", function(assert) {
 	}, ]);
 });
 
+// TODO
 QUnit.test("3x3:no path, top right to top left", function(assert) {
 	var start = {
 		'x' : 0,
@@ -152,20 +153,13 @@ QUnit.test("3x3:no path, top right to top left", function(assert) {
 	var map = new SquareGridMap([ [ " ", "|", " " ], [ " ", "|", " " ],
 			[ " ", "|", " " ], ], start);
 
-	var manhattanDistanceAI = new ManhattanDistance(map, goal);
+	var manhattanDistanceAI = new ManhattanDistanceModel(map, goal);
 	assert.equal(manhattanDistanceAI._state.position, start, "set start");
 	assert.equal(manhattanDistanceAI.goal, goal, "set goal");
 
 	var aStar = new AStar(manhattanDistanceAI);
 	// return;
-	assert.deepEqual(aStar.search(), [
+	assert.deepEqual(aStar.getPath(), [
 
-	// down
-	{
-		'method' : 'down'
-	},
-	// down
-	{
-		'method' : 'down'
-	} ]);
+	]);
 });
