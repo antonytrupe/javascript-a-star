@@ -17,8 +17,6 @@ function EuclideanDistanceModel(_state, goal, cost) {
 
 	this.goal = goal;
 
-	// this._initial_state = _state;
-
 	this.cost = cost;
 
 	// returns an array of instances of the world state, SquareGridMap in this
@@ -67,8 +65,8 @@ function EuclideanDistanceModel(_state, goal, cost) {
 								direction += 'E';
 							}
 
-							console.log(direction);
-							console.log(cost);
+							// console.log(direction);
+							// console.log(cost);
 
 							actions.push({
 								'model' : new EuclideanDistanceModel(
@@ -124,18 +122,12 @@ function EuclideanDistanceModel(_state, goal, cost) {
 	};
 
 	this.keepSearching = function() {
-		return true;
+		return !this.atGoal();
 	};
 
 	this.atGoal = function() {
 		return JSON.stringify(this._state.position) == JSON
 				.stringify(this.goal);
 	};
-	this.setState = function(state) {
-		this._state = state;
-		return this;
-	};
-	this.getState = function() {
-		return this._state;
-	};
+
 }

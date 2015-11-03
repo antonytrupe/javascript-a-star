@@ -70,15 +70,17 @@ function AStar(model) {
 	 * @return
 	 */
 	function process() {
-		var loops = 0, MAX_LOOPS = 10000;
+		// var loops = 0, MAX_LOOPS = 10000;
 		// && loops <= MAX_LOOPS
 		while (openPriorityQueue.size() > 0 && model.keepSearching()) {
-			loops++;
+			// loops++;
 			/**
 			 * @type {Node}
 			 */
 			var q = openPriorityQueue.peek();
 			// model.setState(q.getModel());
+
+			// console.log(q.action);
 
 			// the stopping condition(s)
 			if (q.getModel().atGoal()) {
