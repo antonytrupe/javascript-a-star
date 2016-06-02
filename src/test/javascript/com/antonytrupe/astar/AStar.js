@@ -6,19 +6,20 @@ QUnit.test("hello test", function(assert) {
 
 function O(value) {
 	this.value = value;
-	this.compareTo = function(that) {
-		if (this.value < that.value) {
-			return -1;
-		} else if (this.value == that.value) {
-			return 0;
-		} else if (this.value >= that.value) {
-			return 1;
-		}
-	};
+
 }
+O.compareTo = function(one, two) {
+	if (one.value < two.value) {
+		return -1;
+	} else if (one.value == two.value) {
+		return 0;
+	} else if (one.value >= two.value) {
+		return 1;
+	}
+};
 
 QUnit.test("example PriorityQueue.MIN_HEAP", function(assert) {
-	var p = new PriorityQueue();
+	var p = new PriorityQueue(O.compareTo);
 
 	var object1 = new O(5);
 
@@ -59,7 +60,7 @@ QUnit.test("example PriorityQueue.MIN_HEAP", function(assert) {
 });
 
 QUnit.test("example 1", function(assert) {
-	var p = new PriorityQueue();
+	var p = new PriorityQueue(O.compareTo);
 
 	var object1 = new O(10);
 	var object2 = new O(5)
@@ -75,7 +76,7 @@ QUnit.test("example 1", function(assert) {
 });
 
 QUnit.test("reverse PriorityQueue.MIN_HEAP", function(assert) {
-	var p = new PriorityQueue();
+	var p = new PriorityQueue(O.compareTo);
 
 	var object1 = {};
 	var object2 = {};
@@ -113,7 +114,7 @@ QUnit.test("reverse PriorityQueue.MIN_HEAP", function(assert) {
 
 QUnit.test("PriorityQueue.MIN_HEAP", function(assert) {
 
-	var pq = new PriorityQueue();
+	var pq = new PriorityQueue(O.compareTo);
 	var zero = new O(10);
 
 	// console.log(zero);
@@ -143,58 +144,30 @@ QUnit.test("PriorityQueue.MIN_HEAP", function(assert) {
 	assert.equal(pq.peek().value, 10, "make sure 10 is on the top");
 });
 
-QUnit.test("deepEqual", function(assert) {
-	function State(_node) {
-		this.node = _node;
-	}
-	var one = new State(1);
-	var one1 = new State(1);
-	assert.deepEqual({
-		'node' : 1
-	}, {
-		'node' : 1
-	}, 'object type the same:object');
-
-	assert.deepEqual(one, one1, 'object type the same:State');
-	assert.notDeepEqual(one, {
-		'node' : 1
-	}, 'object type checked');
-});
-
-QUnit.test("node equality", function(assert) {
-	assert.ok(new Node({
-		'model' : 1
-	}).isEqual(new Node({
-		'model' : 1
-	})), "1==1");
-	assert.ok(!new Node({
-		'model' : 1
-	}).isEqual(new Node({
-		'model' : 2
-	})), "1==2");
-
-});
-
 QUnit.test("multi value sorting", function(assert) {
-	var pq = new PriorityQueue('compareTo');
+	// console.log(o);
 	function o(_a, _b) {
 		this.a = _a;
 		this.b = _b;
-		this.compareTo = function(that) {
-			if (this.a < that.a) {
-				return -1;
-			} else if (this.a > that.a) {
-				return 1;
-			} else {
-				if (this.b < that.b) {
-					return -1;
-				} else if (this.b > that.b) {
-					return 1;
-				}
-			}
-			return 0;
-		};
+
 	}
+	o.compareTo = function(one, two) {
+		if (one.a < two.a) {
+			return -1;
+		} else if (one.a > two.a) {
+			return 1;
+		} else {
+			if (one.b < two.b) {
+				return -1;
+			} else if (one.b > two.b) {
+				return 1;
+			}
+		}
+		return 0;
+	};
+
+	var pq = new PriorityQueue(o.compareTo);
+
 	var one = new o(1, 1);
 	var two = new o(1, 0);
 
@@ -229,6 +202,13 @@ QUnit.test("model validation", function(assert) {
 			return false;
 		},
 
+		'getState' : function() {
+			// mock
+		},
+
+		'setState' : function() {
+			// mock
+		},
 		'closedPriorityQueueComparator' : function() {
 			// mock
 		},
@@ -240,65 +220,85 @@ QUnit.test("model validation", function(assert) {
 	}), "mock model");
 });
 
-QUnit.test("time constraint", function(assert) {
-	var foo = true;
-	function RandomIntegerModel(start) {
-		this.state = Math.random();
-		this.start = start;
-		this.getActions = function() {
-			// mock
-			if (foo) {
-				foo = false;
-				return [ {
-					'model' : new RandomIntegerModel(this.start),
-					'action' : ''
-				}, {
-					'model' : new RandomIntegerModel(this.start),
-					'action' : ''
-				} ];
-			} else {
-				return [ {
-					'model' : new RandomIntegerModel(this.start),
-					'action' : ''
-				} ];
+QUnit.test("time constraint",
+		function(assert) {
+			var foo = true;
+			function RandomIntegerModel() {
+				this.state;
+				this.start = new Date();
+				this.getActions = function() {
+					// mock
+					if (foo) {
+						foo = false;
+						return [ {
+							'state' : Math.random(),
+							'action' : ''
+						}, {
+							'state' : Math.random(),
+							'action' : ''
+						} ];
+					} else {
+						return [ {
+							'state' : Math.random(),
+							'action' : ''
+						} ];
+					}
+				};
+
+				this.getState = function() {
+					return this.state;
+				};
+
+				this.setState = function(_state) {
+					this.state = _state;
+				}
+
+				this.atGoal = function() {
+					return false;
+				};
+				this.keepSearching = function() {
+					// console.log(Date.now() - this.start);
+					return Date.now() - this.start <= 2000;
+				};
+
+				this.closedPriorityQueueComparator = function() {
+					// mock
+					return 1;
+				};
+				this.openPriorityQueueComparator = function() {
+					// mock
+					return 1;
+				}
 			}
-		};
 
-		this.atGoal = function() {
-			return false;
-		};
-		this.keepSearching = function() {
-			// console.log(Date.now() - this.start);
-			return Date.now() - this.start <= 2000;
-		};
-
-		this.closedPriorityQueueComparator = function() {
-			// mock
-			return 1;
-		};
-		this.openPriorityQueueComparator = function() {
-			// mock
-			return 1;
-		}
-	}
-
-	assert.ok(new AStar(new RandomIntegerModel(Date.now())).getPath(),
-			"time constraint");
-});
+			assert.ok(new AStar(new RandomIntegerModel()).getPath(),
+					"time constraint");
+		});
 
 QUnit.test("2 node/one step model search", function(assert) {
 
 	function IntegerStateModel(state) {
+
 		this._state = state;
+
 		this.getActions = function() {
 			// mock
 			if (this._state == 0) {
 				return [ {
 					'action' : 1,
-					'model' : new IntegerStateModel(1)
+					'state' : 1
 				} ];
 			}
 			return [];
+		};
+
+		this.getState = function() {
+			return this._state;
+		};
+
+		this.setState = function(state) {
+			console.log(state);
+			this._state = state;
 		};
 
 		this.atGoal = function() {
@@ -331,13 +331,21 @@ QUnit.test("3 node/one step/dead-end model search", function(assert) {
 			if (this._state == 0) {
 				return [ {
 					'action' : 1,
-					'model' : new IntegerStateModel(1)
+					'state' : 1
 				}, {
 					'action' : 2,
-					'model' : new IntegerStateModel(2)
+					'state' : 2
 				} ];
 			}
 			return [];
+		};
+
+		this.getState = function() {
+			return this._state;
+		};
+
+		this.setState = function(state) {
+			this._state = state;
 		};
 
 		this.atGoal = function() {
@@ -375,6 +383,14 @@ QUnit.test("4 node/2 step/dead-end model search", function(assert) {
 		// private, use getter and setter methods
 		this._state = _state;
 
+		this.setState = function(state) {
+			this._state = state;
+		};
+
+		this.getState = function() {
+			return this._state;
+		};
+
 		this.getActions = function() {
 
 			// mock
@@ -382,16 +398,16 @@ QUnit.test("4 node/2 step/dead-end model search", function(assert) {
 			case 0:
 				return [ {
 					'action' : one,
-					'model' : new AI(one)
+					'state' : one
 				}, {
 					'action' : two,
-					'model' : new AI(two)
+					'state' : two
 				} ];
 			case 2:
 
 				return [ {
 					'action' : three,
-					'model' : new AI(three)
+					'state' : three
 				} ];
 			}
 			return [];
@@ -435,6 +451,13 @@ QUnit.test("diamond:first path is shorter", function(assert) {
 	// the AI is responsible for creating new world/game states
 	function AI(state) {
 		this._state = state;
+
+		this.getState = function() {
+			return this._state;
+		};
+		this.setState = function(state) {
+			this._state = state;
+		};
 		// returns an array of objects
 		// each object contains 3 attributes: the 'action' to get to the new
 		// state, the 'args' for the function in the first argument,
@@ -446,16 +469,16 @@ QUnit.test("diamond:first path is shorter", function(assert) {
 
 				return [ {
 					'action' : one,
-					'model' : new AI(one)
+					'state' : one
 				}, {
 					'action' : two,
-					'model' : new AI(two)
+					'state' : two
 				} ];
 			case 1:
 			case 2:
 				return [ {
 					'action' : three,
-					'model' : new AI(three)
+					'state' : three
 				} ];
 
 			default:
@@ -467,7 +490,7 @@ QUnit.test("diamond:first path is shorter", function(assert) {
 			return this._state.node === three.node;
 		};
 		this.keepSearching = function() {
-			return true;
+			return !this.atGoal();
 		};
 
 		this.closedPriorityQueueComparator = function(that) {
@@ -495,17 +518,26 @@ QUnit.test("diamond:second path is shorter", function(assert) {
 	var three = new State(3);
 
 	function GraphModel(state) {
+		var $this = this;
 		this._state = state;
+
+		this.getState = function() {
+			return this._state;
+		};
+		this.setState = function(state) {
+			this._state = state;
+		};
+
 		this.getActions = function() {
 			// mock
 			switch (this._state.node) {
 			case 0:
 				return [ {
 					'action' : one,
-					'model' : new GraphModel(one)
+					'state' : one
 				}, {
 					'action' : two,
-					'model' : new GraphModel(two)
+					'state' : two
 				} ];
 
 				// both nodes 1 and 2 go to 3
@@ -513,7 +545,7 @@ QUnit.test("diamond:second path is shorter", function(assert) {
 			case 2:
 				return [ {
 					'action' : three,
-					'model' : new GraphModel(three)
+					'state' : three
 				} ];
 			default:
 				return [];
@@ -521,11 +553,11 @@ QUnit.test("diamond:second path is shorter", function(assert) {
 		};
 
 		// return 1 if this has a lower cost
-		this.closedPriorityQueueComparator = function(that) {
+		this.closedPriorityQueueComparator = function(one, two) {
 			// mock
 			// console.log(this);
 			// console.log(this._state.node);
-			switch (this._state.node) {
+			switch (one.state.node) {
 			case 0:
 				return 1;
 			case 1:
@@ -536,12 +568,16 @@ QUnit.test("diamond:second path is shorter", function(assert) {
 			return 1;
 		};
 
-		this.openPriorityQueueComparator = function(that) {
+		this.openPriorityQueueComparator = function(one, two) {
 			// mock
-			return this.closedPriorityQueueComparator(that);
+			console.log(one);
+			console.log(two);
+			console.log(this);
+			console.log($this);
+			return $this.closedPriorityQueueComparator(one, two);
 		};
 		this.keepSearching = function() {
-			return true;
+			return !this.atGoal();
 		};
 		this.atGoal = function() {
 			return this._state.node === three.node;
@@ -566,16 +602,22 @@ QUnit.test("no path to goal", function(assert) {
 
 	function GraphModel(state) {
 		this._state = state;
+		this.getState = function() {
+			return this._state;
+		};
+		this.setState = function(state) {
+			this._state = state;
+		};
 		this.getActions = function() {
 			// mock
 			switch (this._state.node) {
 			case 0:
 				return [ {
 					'action' : one,
-					'model' : new GraphModel(one)
+					'state' : new GraphModel(one)
 				}, {
 					'action' : two,
-					'model' : new GraphModel(two)
+					'state' : new GraphModel(two)
 				} ];
 
 				// both nodes 1 and 2 go to 3
@@ -583,7 +625,7 @@ QUnit.test("no path to goal", function(assert) {
 			case 2:
 				return [ {
 					'action' : three,
-					'model' : new GraphModel(three)
+					'state' : new GraphModel(three)
 				} ];
 			default:
 				return [];
@@ -621,10 +663,12 @@ QUnit.test("no path to goal", function(assert) {
 		};
 
 		// in order of estimated cost from the node to the goal
-		this.closedPriorityQueueComparator = function(that) {
-			if (this.hScore() < that.hScore()) {
+		this.closedPriorityQueueComparator = function(one, two) {
+			console.log(one);
+			console.log(two);
+			if (one.getState().hScore() < two.getState().hScore()) {
 				return -1;
-			} else if (this.hScore() > that.hScore()) {
+			} else if (one.getState().hScore() > two.getState().hScore()) {
 				return 1;
 			} else {
 				return 0;
@@ -633,11 +677,17 @@ QUnit.test("no path to goal", function(assert) {
 
 		// in order of actual cost from start to current node plus estimated
 		// cost to goal
-		this.openPriorityQueueComparator = function(that) {
-			if (this.hScore() + this.gScore() < that.hScore() + that.gScore()) {
+		// one and two are
+		this.openPriorityQueueComparator = function(one, two) {
+			console.log(one);
+			console.log(two);
+			if (one.getState().hScore() + one.getState().gScore() < two
+					.getState().hScore()
+					+ two.getState().gScore()) {
 				return -1;
-			} else if (this.hScore() + this.gScore() > that.hScore()
-					+ that.gScore()) {
+			} else if (one.getState().hScore() + one.getState().gScore() > two
+					.getState().hScore()
+					+ two.getState().gScore()) {
 				return 1;
 			} else {
 				return 0;

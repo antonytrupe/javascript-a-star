@@ -13,7 +13,7 @@ function ManhattanDistanceModel(_state, goal, steps) {
 
 	this.steps = steps;
 
-	//this._initial_state = _state;
+	// this._initial_state = _state;
 
 	// returns an array of instances of the world state, SquareGridMap in this
 	// case
@@ -86,10 +86,10 @@ function ManhattanDistanceModel(_state, goal, steps) {
 	};
 
 	// in order of estimated cost from the node to the goal
-	this.closedPriorityQueueComparator = function(that) {
-		if (this.hScore() < that.hScore()) {
+	this.closedPriorityQueueComparator = function(one, two) {
+		if (one.hScore() < two.hScore()) {
 			return 1;
-		} else if (this.hScore() > that.hScore()) {
+		} else if (one.hScore() > two.hScore()) {
 			return -1;
 		} else {
 			return 0;
@@ -98,11 +98,10 @@ function ManhattanDistanceModel(_state, goal, steps) {
 
 	// in order of actual cost from start to current node plus estimated
 	// cost to goal
-	this.openPriorityQueueComparator = function(that) {
-		if (this.hScore() + this.gScore() < that.hScore() + that.gScore()) {
+	this.openPriorityQueueComparator = function(one, two) {
+		if (one.hScore() + one.gScore() < two.hScore() + two.gScore()) {
 			return -1;
-		} else if (this.hScore() + this.gScore() > that.hScore()
-				+ that.gScore()) {
+		} else if (one.hScore() + one.gScore() > two.hScore() + two.gScore()) {
 			return 1;
 		} else {
 			return 0;

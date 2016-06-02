@@ -27,8 +27,9 @@ function AStar(model) {
 	}
 
 	// make sure the model has the right methods for a_star to use
-	var requiredModelMembers = [ 'getActions', 'atGoal', 'keepSearching',
-			'closedPriorityQueueComparator', 'openPriorityQueueComparator' ];
+	var requiredModelMembers = [ 'getState', 'setState', 'getActions',
+			'atGoal', 'keepSearching', 'closedPriorityQueueComparator',
+			'openPriorityQueueComparator' ];
 	var missingMembers = [];
 	requiredModelMembers.forEach(function(method) {
 		if (typeof model[method] === "undefined") {
@@ -48,17 +49,18 @@ function AStar(model) {
 	 * @type {PriorityQueue} - the nodes we've already visited, in order of
 	 *       estimated remaining cost to goal
 	 */
-	var closedPriorityQueue = new PriorityQueue('closedPriorityQueueComparator');
+	var closedPriorityQueue = new PriorityQueue(
+			model.closedPriorityQueueComparator);
 
 	/**
 	 * @type {PriorityQueue} - the nodes we want to visit, in order of actual
 	 *       cost and estimated remaining cost
 	 */
-	var openPriorityQueue = new PriorityQueue('openPriorityQueueComparator');
+	var openPriorityQueue = new PriorityQueue(model.openPriorityQueueComparator);
 
 	// now initialize some stuff
 	var start = new Node({
-		'model' : model
+		'state' : model.getState()
 	});
 	// start.setG(0);
 	// start.setH(model.hScore());
@@ -78,12 +80,12 @@ function AStar(model) {
 			 * @type {Node}
 			 */
 			var q = openPriorityQueue.peek();
-			// model.setState(q.getModel());
+			model.setState(q.getState());
 
 			// console.log(q.action);
 
 			// the stopping condition(s)
-			if (q.getModel().atGoal()) {
+			if (model.atGoal()) {
 				// console.log('got to goal or some other constraint');
 				return q;
 			}
@@ -91,11 +93,11 @@ function AStar(model) {
 			// remove this node from the open list
 			openPriorityQueue.poll();
 			// add it to the closed lists
-			closedSet.add(JSON.stringify(q.getModel()));
+			closedSet.add(JSON.stringify(q.getState()));
 			closedPriorityQueue.add(q);
 
 			// get actions returns an array of objects
-			q.getModel().getActions().forEach(
+			model.getActions().forEach(
 			/**
 			 * @param {Node}
 			 *            n
@@ -112,7 +114,7 @@ function AStar(model) {
 
 				// check the closed set to make sure we don't
 				// backtrack
-				if (!closedSet.has(JSON.stringify(neighbor.getModel()))) {
+				if (!closedSet.has(JSON.stringify(neighbor.getState()))) {
 					openPriorityQueue.add(neighbor);
 				}
 			});
@@ -137,7 +139,7 @@ function AStar(model) {
 	 * @returns best state given constraints
 	 */
 	this.getSolution = function() {
-		return process().getModel();
+		return process().getState();
 	};
 
 	/**
@@ -171,7 +173,7 @@ function AStar(model) {
 function Node(args) {
 	"use strict";
 
-	this._model = args.model;
+	this.state = args.state;
 	this.predecessor = args.predecessor;
 	// action has method and arguments, if any
 	// this is the action to get to this state from the predecessor state
@@ -181,11 +183,8 @@ function Node(args) {
 		return this.action;
 	};
 
-	this.setModel = function(__model) {
-		this._model = __model;
-	};
-	this.getModel = function() {
-		return this._model;
+	this.getState = function() {
+		return this.state;
 	};
 
 	this.setPredecessor = function(__p) {
@@ -194,42 +193,6 @@ function Node(args) {
 	this.getPredecessor = function() {
 		return this.predecessor;
 	};
-	this.isEqual = function(node) {
-		if (!(node instanceof Node)) {
-			return false;
-		}
-		return JSON.stringify(node.getModel()) == JSON.stringify(this
-				.getModel());
-	};
-	this.compareTo = function(that) {
-		console.log('Node.compareTo');
-		console.log(this);
-		console.log(that);
-		// if (this.getF() < that.getF()) {
-		// return -1;
-		// } else if (this.getF() > that.getF()) {
-		// return 1;
-		// }
-		if (this.getModel.hasOwnProperty('compareTo')) {
-			return this.getModel.compareTo(that.getModel());
-		} else {
-			return 0;
-		}
-
-	};
-
-	this.closedPriorityQueueComparator = function(that) {
-		// mock
-		return this.getModel().closedPriorityQueueComparator.call(this
-				.getModel(), that.getModel());
-	};
-
-	this.openPriorityQueueComparator = function(that) {
-		// mock
-		return this.getModel().openPriorityQueueComparator.call(
-				this.getModel(), that.getModel());
-	}
-
 }
 
 /**
@@ -248,6 +211,8 @@ function Node(args) {
  *            heapType either PriorityQueue.MAX_HEAP or PriorityQueue.MIN_HEAP.
  */
 function PriorityQueue(comparator) {
+
+	// console.log(comparator);
 
 	/**
 	 * The current length of queue.
@@ -278,12 +243,14 @@ function PriorityQueue(comparator) {
 	 * @return
 	 */
 	this.insert = function(value) {
-		if (!(value.hasOwnProperty('compareTo') || (typeof comparator !== "undefined" && value
-				.hasOwnProperty(comparator)))) {
-			throw "Cannot insert " + value
-					+ " because it does not have a property by the name of "
-					+ 'compareTo' + ".";
-		}
+
+		// if (!(value.hasOwnProperty('compareTo') || (typeof comparator !==
+		// "undefined" && value
+		// .hasOwnProperty(comparator)))) {
+		// throw "Cannot insert " + value
+		// + " because it does not have a property by the name of "
+		// + 'compareTo' + ".";
+		// }
 		queue.push(value);
 		this.length++;
 		bubbleUp(this.length - 1);
@@ -355,11 +322,11 @@ function PriorityQueue(comparator) {
 	var swapUntilQueueIsCorrect = function(value) {
 		var left = getLeftOf(value);
 		var right = getRightOf(value);
-		// TODO evaluate
+		// evaluate
 		if (evaluate(left, value) === -1) {
 			swap(value, left);
 			swapUntilQueueIsCorrect(left);
-			// TODO evaluate
+			// evaluate
 		} else if (evaluate(right, value) === -1) {
 			swap(value, right);
 			swapUntilQueueIsCorrect(right);
@@ -392,11 +359,10 @@ function PriorityQueue(comparator) {
 		// console.log(comparator);
 		// console.log(queue[self]);
 		// console.log(queue[target]);
-		if (typeof comparator !== "undefined") {
-			return queue[self][comparator](queue[target]);
-		} else {
-			return queue[self]['compareTo'](queue[target]);
-		}
+		// TODO figure out how to set the right this for the call to the
+		// comparator
+		return comparator(queue[self], queue[target]);
+
 	};
 
 	/**
